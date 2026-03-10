@@ -1,0 +1,22 @@
+{
+  "manifest_version": 3,
+  "name": "News title scrambler",
+  "version": "1.0",
+  "description": "A fun game to play on your Microsoft Start screen that works by making you guess the correct string of letters to a given picture",
+  "permissions": ["activeTab"],
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "images/16x.png",
+      "48": "images/48x.png",
+      "128": "images/128x.png"
+    }
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}
