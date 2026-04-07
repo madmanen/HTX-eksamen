@@ -3,7 +3,7 @@
   "name": "News title scrambler",
   "version": "1.0",
   "description": "A fun game to play on your Microsoft Start screen that works by making you guess the correct string of letters to a given picture",
-  "permissions": ["activeTab"],
+  "permissions": ["activeTab", "scripting","tabs"],
   "action": {
     "default_popup": "popup.html",
     "default_icon": {
