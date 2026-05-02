@@ -17,7 +17,8 @@ class titleCon{
     }
 }
 
-const edge = new titleCon('\"Segoe UI\", Segoe, Tahoma, Arial, Verdana, sans-serif', "20px", "600", "26px");
+const edge = new titleCon('\"\"', "20px", "600", "26px");
+const tv2 = new titleCon('TV2, "Helvetica Neue", "Segoe UI", sans-serif', '28px', '700', '30.8px')
 
 let titleProfile;
 let titlePoint = 0;
@@ -44,7 +45,11 @@ function requestUrl(){
             console.log(titleProfile);
             findTitle();
         }
-    }
+        else if(message.data === "https://tv2.dk/"){
+            titleProfile = tv2;
+            findTitle();
+        }
+        }
     })
 }
 
@@ -52,7 +57,7 @@ function requestUrl(){
 function findTitle(){
     while (titleFound === false){
         if (!node){ return;}
-        const parentEl = node.parentElement;
+        parentEl = node.parentElement;
         if(parentEl){
             let style = window.getComputedStyle(parentEl);
             if(style.fontFamily === titleProfile.fontFamily){titlePoint = titlePoint + 1;}
@@ -70,6 +75,7 @@ function findTitle(){
                 title = node;
                 console.log("TITLE FOUND!!" + title.textContent);
                 titleFound = true;
+                scrambleTitle();
             }
             else{
             node = walker.nextNode();
@@ -80,21 +86,29 @@ function findTitle(){
 }
 
 function charGiveStyle(){
+    console.log("span begun");
     const frag = document.createDocumentFragment();
     for(let char of title.textContent){
         const span = document.createElement("span");
         span.className = "title";
         span.textContent = char;
-        span.style.color(titleProfile.color);
+        //span.style.color("#ccc");
         frag.appendChild(span);
     }
-    parentEl.replaceChild(frag, title);
+    title.parentNode.replaceChild(frag, title);
+    console.log("span finished");
+    .parentNode.childNodes.forEach((node, index) => {
+        console.log(`Node ${index}:`);
+        console.log("  Type:", node.nodeType); // 1=Element, 3=Text, 8=Comment
+        console.log("  Name:", node.nodeName);
+        console.log("  Value:", node.textContent);
+    });
 }
 
-function scambleTitle(){
-    if (title.length <= 1) {return "Error no title found";}
-    if (title.length > 1) {
-        titleArr = title.toLowerCase().split("")
+function scrambleTitle(){
+    titleArr = title.textContent.toLowerCase().split("")
+    if (titleArr.length <= 1) {return "Error no title found";}
+    if (titleArr.length > 1) {
         charGiveStyle();
         spans = Array.from(parentEl.querySelectorAll(".title"));
         for(let i = titleArr.length - 1; i > 0; i--) {
@@ -104,6 +118,7 @@ function scambleTitle(){
         }
         titleScrambled = titleArr.join("");
         node.textContent = titleScrambled;
+        console.log(titleScrambled);
         chrome.runtime.sendMessage({action: "startGame"});
         chrome.runtime.sendMessage({action: title});
         gameActive = true;
@@ -113,7 +128,7 @@ function scambleTitle(){
 //this is the setup:
 requestUrl();
 node = walker.nextNode();
-console.log(titleScrambled);
+
 if(titleScrambled === "Error no title found"){
     node = walker.nextNode();
     titleFound = false;
@@ -134,7 +149,7 @@ chrome.runtime.onMessage.addListener((request, sender, response) => {
             if (currentAnswer[i] === titleArr[i]){
                 answerScore = answerScore + 1;
                 spans[i].textContent === currentAnswer[i];
-                spans[i].style.color("#7fff00");
+                //spans[i].style.color("#7fff00");
             }
         }
     }
