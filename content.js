@@ -1,3 +1,5 @@
+console.log("CONTENT SCRIPT LOADED");
+
 const walker = document.createTreeWalker(
     document.body,
     NodeFilter.SHOW_TEXT,
@@ -31,25 +33,28 @@ let node;
 function requestUrl(){
     chrome.runtime.onMessage.addListener((message, sender) => {
     if(message.action === "receiveUrl") {
-        if(data.url === "") {titleProfile = edge;}
+        console.log("Content script received URL:", message.data);
+        //if (message.data === "https://www.youtube.com/?app=desktop") { titleProfile = edge; }
     }
     })
 }
 
+
 function findTitle(){
     while (titleFound === false){
+        if (!node) return;
         const parentEl = node.parentElement;
         if(parentEl){
             let style = window.getComputedStyle(parentEl);
             if(style.fontFamily === titleProfile.fontFamily){titlePoint = titlePoint + 1;}
             if(style.fontSize === titleProfile.fontSize){titlePoint = titlePoint + 1;}
             if(style.fontWeight === titleProfile.fontWeight){titlePoint = titlePoint + 1;}
-            if(style.lineHeight === titleProfile.lineHeight){titlePoint = titlePoint + 1;)}
+            if(style.lineHeight === titleProfile.lineHeight){titlePoint = titlePoint + 1;}
             console.log({
             fontFamily: style.fontFamily,
             fontSize: style.fontSize});
             node = walker.nextNode();
-            if(titlePoint => titlePointThrs){
+            if(titlePoint >= titlePointThrs){
                 title = node;
                 console.log("TITLE FOUND!!" + title);
                 titleFound = true;
@@ -66,8 +71,8 @@ function scambleTitle(){
     if (title.length <= 1) {return "Error no title found";}
     if (title.length > 1) {
         let charArr = title.split("");
-        for(let i = charArr.length - 1; i > 0, i--) {
-            cont ran = Math.floor(Math.random()*(i+1));
+        for (let i = charArr.length - 1; i > 0; i--) {
+            let ran = Math.floor(Math.random()*(i+1));
             [charArr[i], charArr[ran]] = [charArr[ran], charArr[i]];
         }
         scambleTitle = node.textContent = charArr.join("");
@@ -106,5 +111,7 @@ chrome.runtime.onMessage.addListener((request, sender, response) => {
         //Resolves when the answer given is 100% correct and the game is over
         gameActive = false;
     }
-  }
+  })
 }
+
+requestUrl();
