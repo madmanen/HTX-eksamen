@@ -23,7 +23,12 @@ let titleProfile;
 let titlePoint = 0;
 const titlePointThrs = 4;
 
-let previousAnswer;
+let previousAnswerScore;
+let currentAnswer;
+let answerScore;
+
+let spans;
+let parentEl;
 let title;
 let titleScrambled;
 let titleFound = false;
@@ -67,19 +72,34 @@ function findTitle(){
     }
 }
 
+function charGiveStyle(){
+    const frag = document.createDocumentFragment();
+    for(let char of title.textContent){
+        const span = document.createElement("span");
+        span.className = "title";
+        span.textContent = char;
+        span.style.color(titleProfile.color);
+        frag.appendChild(span);
+    }
+    parentEl.replaceChild(frag, title);
+}
+
 function scambleTitle(){
     if (title.length <= 1) {return "Error no title found";}
     if (title.length > 1) {
-        let charArr = title.split("");
-        for (let i = charArr.length - 1; i > 0; i--) {
+        titleArr = title.toLowerCase().split("")
+        charGiveStyle();
+        spans = Array.from(parentEl.querySelectorAll(".title"));
+        for(let i = titleArr.length - 1; i > 0; i--) {
             let ran = Math.floor(Math.random()*(i+1));
-            [charArr[i], charArr[ran]] = [charArr[ran], charArr[i]];
+            [titleArr[i], titleArr[ran]] = [titleArr[ran], titleArr[i]];
+            spans[i].textContent = titleArr[i];
         }
-        scambleTitle = node.textContent = charArr.join("");
+        titleScrambled = titleArr.join("");
+        node.textContent = titleScrambled;
         chrome.runtime.sendMessage({action: "startGame"});
         chrome.runtime.sendMessage({action: title});
         gameActive = true;
-        return scambleTitle;
     }
 }
 
@@ -87,14 +107,12 @@ function scambleTitle(){
 requestUrl();
 node = walker.nextNode();
 findTitle();
-titleScrambled = scambleTitle();
 console.log(titleScrambled);
 if(titleScrambled === "Error no title found"){
     node = walker.nextNode();
     titleFound = false;
     titlePoint = 0;
     findTitle();
-    titleScrambled = scambleTitle();
     console.log(titleScrambled);
 }
 if(titleScrambled === "Error no title found"){chrome.runtime.sendMessage({error: "noTitle"});}
@@ -104,8 +122,15 @@ while (gameActive){
 chrome.runtime.onMessage.addListener((request, sender, response) => {
     if(request.answer ){
         //Resolves when the answer given is not 100% correct
-
-
+        currentAnswer = request.answer.toLowerCase.split("");
+        answerScore = 0;
+        for(let i = 0; i <= titleArr.length; i++){
+            if currentAnswer[i] === titleArr[i]{
+                answerScore = answerScore + 1;
+                spans[i].textContent === currentAnswer[i];
+                spans[i].style.color("#7fff00");
+            }
+        }
     }
     else if(request.correct){
         //Resolves when the answer given is 100% correct and the game is over
@@ -113,5 +138,3 @@ chrome.runtime.onMessage.addListener((request, sender, response) => {
     }
   })
 }
-
-requestUrl();
