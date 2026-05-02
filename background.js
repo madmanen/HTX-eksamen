@@ -4,7 +4,7 @@ chrome.runtime.onMessage.addListener((request, sender) => {
       if (tabs.length > 0) {
         const url = tabs[0].url;
         // Send URL to the content script
-        chrome.tabs.sendMessage({action: "receiveUrl",data: url});
+        chrome.tabs.sendMessage(tabs[0].id, {action: "receiveUrl",data: url});
         }
     });
   }

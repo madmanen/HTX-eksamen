@@ -39,7 +39,10 @@ function requestUrl(){
     chrome.runtime.onMessage.addListener((message, sender) => {
     if(message.action === "receiveUrl") {
         console.log("Content script received URL:", message.data);
-        //if (message.data === "https://www.youtube.com/?app=desktop") { titleProfile = edge; }
+        if (message.data === "https://www.bing.com") {
+            titleProfile = edge;
+            console.log(titleProfile);
+             }
     }
     })
 }
@@ -105,8 +108,8 @@ function scambleTitle(){
 
 //this is the setup:
 requestUrl();
-node = walker.nextNode();
-findTitle();
+//node = walker.nextNode();
+//findTitle();
 console.log(titleScrambled);
 if(titleScrambled === "Error no title found"){
     node = walker.nextNode();
@@ -125,7 +128,7 @@ chrome.runtime.onMessage.addListener((request, sender, response) => {
         currentAnswer = request.answer.toLowerCase.split("");
         answerScore = 0;
         for(let i = 0; i <= titleArr.length; i++){
-            if currentAnswer[i] === titleArr[i]{
+            if (currentAnswer[i] === titleArr[i]){
                 answerScore = answerScore + 1;
                 spans[i].textContent === currentAnswer[i];
                 spans[i].style.color("#7fff00");
