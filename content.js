@@ -17,7 +17,7 @@ class titleCon{
     }
 }
 
-const edge = new titleCon(["Segoe UI", "Segoe UI Midlevel", "sans-serif"], "24px", "600", "26px");
+const edge = new titleCon('\"Segoe UI\", Segoe, Tahoma, Arial, Verdana, sans-serif', "20px", "600", "26px");
 
 let titleProfile;
 let titlePoint = 0;
@@ -39,10 +39,11 @@ function requestUrl(){
     chrome.runtime.onMessage.addListener((message, sender) => {
     if(message.action === "receiveUrl") {
         console.log("Content script received URL:", message.data);
-        if (message.data === "https://www.bing.com") {
+        if (message.data === "https://www.bing.com/") {
             titleProfile = edge;
             console.log(titleProfile);
-             }
+            findTitle();
+        }
     }
     })
 }
@@ -50,7 +51,7 @@ function requestUrl(){
 
 function findTitle(){
     while (titleFound === false){
-        if (!node) return;
+        if (!node){ return;}
         const parentEl = node.parentElement;
         if(parentEl){
             let style = window.getComputedStyle(parentEl);
@@ -60,11 +61,14 @@ function findTitle(){
             if(style.lineHeight === titleProfile.lineHeight){titlePoint = titlePoint + 1;}
             console.log({
             fontFamily: style.fontFamily,
-            fontSize: style.fontSize});
+            fontSize: style.fontSize,
+            fontWeight: style.fontWeight,
+            lineHeight: style.lineHeight});
+            console.log(titlePoint);
             node = walker.nextNode();
             if(titlePoint >= titlePointThrs){
                 title = node;
-                console.log("TITLE FOUND!!" + title);
+                console.log("TITLE FOUND!!" + title.textContent);
                 titleFound = true;
             }
             else{
@@ -108,8 +112,7 @@ function scambleTitle(){
 
 //this is the setup:
 requestUrl();
-//node = walker.nextNode();
-//findTitle();
+node = walker.nextNode();
 console.log(titleScrambled);
 if(titleScrambled === "Error no title found"){
     node = walker.nextNode();
