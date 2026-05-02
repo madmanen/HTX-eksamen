@@ -8,13 +8,24 @@ document.addEventListener("DOMContentLoaded", () => {
     const gameScreen = document.getElementById("gameScreen");
 
     startBtn.addEventListener("click", () => {
-        startScreen.style.display = "none";
-        gameScreen.style.display = "block";
-        startGame(); // starter spillet
+        chrome.runtime.sendMessage({ action: "getTabUrl" });
+    });
+
+    chrome.runtime.onMessage.addListener((request, sender) => {
+        if (request.action === "startGame") {
+            startGame();
+        }
+
+        if (request.error === "noTittle") {
+            noValidTittle();
+        }
     });
 });
 
 function startGame() {
+
+    startScreen.style.display = "none";
+    gameScreen.style.display = "block";
     const timer = document.getElementById("timer");
     const input = document.getElementById("userInput");
     const button = document.getElementById("submitBtn");
@@ -43,4 +54,8 @@ function startGame() {
             input.classList.add("wrong");
         }
     });
+}
+
+function noValidTittle() {
+    document.getElementById("errorBox").style.display = "block";
 }
