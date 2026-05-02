@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+    <meta charset="UTF-8">
+    <title>News Title Scrambler</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 20px;
+        }
+
+        /* FRONT PAGE BOX */
+        #startScreen {
+            background: white;
+            border: 2px solid #ccc;
+            padding: 40px;
+            display: inline-block;
+        }
+
+        /* HIDE GAME INITIALLY */
+        #gameScreen {
+            display: none;
+        }
+
+        input[type="text"] {
+            width: 600px;
+            padding: 10px;
+        }
+
+        .correct {
+            background-color: #c8f7c5;
+        }
+
+        .wrong {
+            background-color: #f7c5c5;
+        }
+
+        button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            cursor: pointer;
+        }
+
+        #timer {
+            font-size: 2em;
+            color: #008000;
+            margin-bottom: 20px;
+        }
+
+        #errorBox {
+            display: none;
+            background: white;
+            border: 2px solid #ff4d4d;
+            padding: 20px;
+            width: 300px;
+            margin: 20px auto;
+            color: #b30000;
+            font-weight: bold;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- START SCREEN -->
+    <div id="startScreen">
+        <h2>Velkommen</h2>
+        <button id="startBtn">Start</button>
+    </div>
+
+    <!-- ERROR BOX -->
+    <div id="errorBox">
+    <p>ERROR: Fejl fundet - Prøv igen på anden hjemmeside</p>
+    </div>
+
+    <!-- GAME SCREEN -->
+    <div id="gameScreen">
+
+        <h1>News Mixer</h1>
+
+        <div id="timer"></div>
+
+        <label for="userInput">
+            Skriv dit bud på hvad den rigtige title er her:
+        </label>
+        <br>
+
+        <input
+            type="text"
+            id="userInput"
+            placeholder="Skriv dit gæt her!"
+        >
+
+        <br>
+
+        <button id="submitBtn">Fastlås gæt</button>
+
+    </div>
+
+    <script src="popup.js"></script>
+</body>
+</html>
