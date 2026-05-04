@@ -30,6 +30,7 @@ let answerScore;
 
 let spans;
 let parentEl;
+let titleParent;
 let title;
 let titleScrambled;
 let titleFound = false;
@@ -86,42 +87,34 @@ function findTitle(){
 }
 
 function charGiveStyle(){
-    let titleParent = title.parentNode;
+    titleParent = title.parentNode;
     console.log("span begun");
     const frag = document.createDocumentFragment();
     for(let char of title.textContent){
         const span = document.createElement("span");
         span.className = "title";
         span.textContent = char;
-        //span.style.color("#ccc");
+        span.style.color = "#ccc";
         frag.appendChild(span);
     }
-    title.parentNode.replaceChild(frag, title);
+    titleParent.replaceChild(frag, title);
+    spans = Array.from(titleParent.querySelectorAll(".title"));
     console.log("span finished");
-    titleParent.parentNode.childNodes.forEach((node, index) => {
-        console.log(`Node ${index}:`);
-        console.log("  Type:", node.nodeType); // 1=Element, 3=Text, 8=Comment
-        console.log("  Name:", node.nodeName);
-        console.log("  Value:", node.textContent);
-    });
+    console.log(spans.length);
 }
 
 function scrambleTitle(){
-    titleArr = title.textContent.toLowerCase().split("")
-    if (titleArr.length <= 1) {return "Error no title found";}
-    if (titleArr.length > 1) {
-        charGiveStyle();
-        spans = Array.from(parentEl.querySelectorAll(".title"));
-        for(let i = titleArr.length - 1; i > 0; i--) {
+    chrome.runtime.sendMessage({correctAnswer: title.textContent});
+    charGiveStyle();
+    if (spans.length < 1) {return "Error no title found";}
+    if (spans.length > 1) {
+        for(let i = spans.length - 1; i >= 0; i--) {
             let ran = Math.floor(Math.random()*(i+1));
-            [titleArr[i], titleArr[ran]] = [titleArr[ran], titleArr[i]];
-            spans[i].textContent = titleArr[i];
+            [spans[i].textContent, spans[ran].textContent] = [spans[ran].textContent, spans[i].textContent];
+            console.log(spans[i].textContent);
+            console.log(i);
         }
-        titleScrambled = titleArr.join("");
-        node.textContent = titleScrambled;
-        console.log(titleScrambled);
         chrome.runtime.sendMessage({action: "startGame"});
-        chrome.runtime.sendMessage({action: title});
         gameActive = true;
     }
 }
@@ -146,11 +139,11 @@ chrome.runtime.onMessage.addListener((request) => {
         //Resolves when the answer given is not 100% correct
         currentAnswer = request.answer.toLowerCase.split("");
         answerScore = 0;
-        for(let i = 0; i <= titleArr.length; i++){
-            if (currentAnswer[i] === titleArr[i]){
+        for(let i = 0; i <= spans.length; i++){
+            if (currentAnswer[i] === spans[i].textContent){
                 answerScore = answerScore + 1;
                 spans[i].textContent === currentAnswer[i];
-                //spans[i].style.color("#7fff00");
+                spans[i].style.color = "#7fff00";
             }
         }
     }

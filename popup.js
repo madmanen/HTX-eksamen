@@ -1,6 +1,6 @@
 let countdown;
 let timeLeft = 60;
-let correctAnswer = "1";
+let correctAnswer = "test";
 
 document.addEventListener("DOMContentLoaded", () => {
     const startBtn = document.getElementById("startBtn");
@@ -12,6 +12,10 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     chrome.runtime.onMessage.addListener((request, sender) => {
+        //if(request.correctAnswer){
+        //    correctAnswer = request.correctAnswer;
+        //    console.log(correctAnswer);
+        //    }
         if (request.action === "startGame") {
             startGame();
         }
