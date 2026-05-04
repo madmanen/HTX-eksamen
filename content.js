@@ -37,7 +37,7 @@ let gameActive = false;
 let node;
 
 function requestUrl(){
-    chrome.runtime.onMessage.addListener((message, sender) => {
+    chrome.runtime.onMessage.addListener((message) => {
     if(message.action === "receiveUrl") {
         console.log("Content script received URL:", message.data);
         if (message.data === "https://www.bing.com/") {
@@ -86,6 +86,7 @@ function findTitle(){
 }
 
 function charGiveStyle(){
+    let titleParent = title.parentNode;
     console.log("span begun");
     const frag = document.createDocumentFragment();
     for(let char of title.textContent){
@@ -97,7 +98,7 @@ function charGiveStyle(){
     }
     title.parentNode.replaceChild(frag, title);
     console.log("span finished");
-    .parentNode.childNodes.forEach((node, index) => {
+    titleParent.parentNode.childNodes.forEach((node, index) => {
         console.log(`Node ${index}:`);
         console.log("  Type:", node.nodeType); // 1=Element, 3=Text, 8=Comment
         console.log("  Name:", node.nodeName);
@@ -140,8 +141,8 @@ if(titleScrambled === "Error no title found"){chrome.runtime.sendMessage({error:
 
 //this is the game loop:
 while (gameActive){
-chrome.runtime.onMessage.addListener((request, sender, response) => {
-    if(request.answer ){
+chrome.runtime.onMessage.addListener((request) => {
+    if(request.answer){
         //Resolves when the answer given is not 100% correct
         currentAnswer = request.answer.toLowerCase.split("");
         answerScore = 0;
