@@ -24,10 +24,8 @@ let titleProfile;
 let titlePoint = 0;
 const titlePointThrs = 4;
 
-let previousAnswerScore;
 let currentAnswer;
 let answerScore;
-
 let spans;
 let parentEl;
 let titleParent;
@@ -36,6 +34,7 @@ let titleScrambled;
 let titleFound = false;
 let gameActive = false;
 let node;
+
 
 function requestUrl(){
     chrome.runtime.onMessage.addListener((message) => {
@@ -104,7 +103,6 @@ function charGiveStyle(){
 }
 
 function scrambleTitle(){
-    chrome.runtime.sendMessage({correctAnswer: title.textContent});
     charGiveStyle();
     if (spans.length < 1) {return "Error no title found";}
     if (spans.length > 1) {
@@ -135,6 +133,7 @@ if(titleScrambled === "Error no title found"){chrome.runtime.sendMessage({error:
 //this is the game loop:
 while (gameActive){
 chrome.runtime.onMessage.addListener((request) => {
+    while (request.answer = true)
     if(request.answer){
         //Resolves when the answer given is not 100% correct
         currentAnswer = request.answer.toLowerCase.split("");

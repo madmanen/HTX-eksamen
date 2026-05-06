@@ -11,11 +11,8 @@ document.addEventListener("DOMContentLoaded", () => {
         chrome.runtime.sendMessage({ action: "getTabUrl" });
     });
 
-    chrome.runtime.onMessage.addListener((request, sender) => {
-        //if(request.correctAnswer){
-        //    correctAnswer = request.correctAnswer;
-        //    console.log(correctAnswer);
-        //    }
+    chrome.runtime.onMessage.addListener((request) => {
+
         if (request.action === "startGame") {
             startGame();
         }
@@ -30,6 +27,7 @@ function startGame() {
 
     startScreen.style.display = "none";
     gameScreen.style.display = "block";
+
     const timer = document.getElementById("timer");
     const input = document.getElementById("userInput");
     const button = document.getElementById("submitBtn");
@@ -49,14 +47,15 @@ function startGame() {
     }, 1000);
 
     button.addEventListener("click", () => {
-        input.classList.remove("correct", "wrong");
 
-        if (input.value.trim().toLowerCase() === correctAnswer) {
-            input.classList.add("correct");
-            clearInterval(countdown);
-        } else {
-            input.classList.add("wrong");
-        }
+        const guess = input.value;
+
+        chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+            chrome.tabs.sendMessage(tabs[0].id, {
+                action: "userGuess",
+                guess: guess
+            });
+        });
     });
 }
 
