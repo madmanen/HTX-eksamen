@@ -118,7 +118,6 @@ function charGiveStyle(){
 }
 
 function scrambleTitle(){
-    chrome.runtime.sendMessage({correctAnswer: title.textContent});
     charGiveStyle();
     if (spans.length < 1) {return "Error no title found";}
     if (spans.length > 1) {
@@ -152,12 +151,10 @@ if(titleScrambled === "Error no title found"){chrome.runtime.sendMessage({error:
 chrome.runtime.onMessage.addListener((request) => {
     if((request.action === "userGuess") && (request.guess != previousGuess)){
         //Resolves when the answer given is not 100% correct
-        console.log(request.guess);
         currentGuess = request.guess.split("");
         previousGuess = currentGuess.join("");
         answerScore = 0;
         for(let i = 0; i < spans.length; i++){
-            console.log(answer[i].textContent);
             if (currentGuess[i] === answer[i].textContent){
                 answerScore++;
                 spans[i].textContent = currentGuess[i];

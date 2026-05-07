@@ -1,6 +1,5 @@
 let countdown;
 let timeLeft = 60;
-let correctAnswer = "test";
 
 document.addEventListener("DOMContentLoaded", () => {
     const startBtn = document.getElementById("startBtn");
@@ -49,7 +48,7 @@ function startGame() {
     button.addEventListener("click", () => {
 
         const guess = input.value;
-
+        console.log(guess)
         chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
             chrome.tabs.sendMessage(tabs[0].id, {
                 action: "userGuess",
