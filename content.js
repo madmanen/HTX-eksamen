@@ -1,40 +1,54 @@
-console.log("CONTENT SCRIPT LOADED");
+if (window.__myContentScriptLoaded) {
+    console.log("Duplicate content script detected, skipping init");
+}
+window.__myContentScriptLoaded = true;
+
+console.log("Content script loaded at", performance.now());
 
 const walker = document.createTreeWalker(
     document.body,
-    NodeFilter.SHOW_TEXT,
-    null,
+    NodeFilter.SHOW_TEXT | NodeFilter.SHOW_ELEMENT,
+    {acceptNode(node) {
+      // Only accept text nodes or <span> elements
+      if (node.nodeType === Node.TEXT_NODE) return NodeFilter.FILTER_ACCEPT;
+      if (node.nodeType === Node.ELEMENT_NODE && node.tagName === 'SPAN') {
+        return NodeFilter.FILTER_ACCEPT;
+      }
+      return NodeFilter.FILTER_SKIP;
+    }
+    },
     false);
 
 
 class titleCon{
-    constructor(fontFamily, fontSize, fontWeight, lineHeight){
+    constructor(fontFamily, fontSize, fontWeight, lineHeight, className){
     this.fontFamily = fontFamily;
     this.fontSize = fontSize;
     this.fontWeight = fontWeight;
     //titleCon.color = color;
     this.lineHeight = lineHeight;
+    this.className = className;
     }
 }
 
-const edge = new titleCon('\"\"', "20px", "600", "26px");
-const tv2 = new titleCon('TV2, "Helvetica Neue", "Segoe UI", sans-serif', '28px', '700', '30.8px')
+//const edge = new titleCon('\"\"', "20px", "600", "26px", "title");
+const tv2 = new titleCon('TV2, "Helvetica Neue", "Segoe UI", sans-serif', '12px', '500', '20px', ['tc_heading', 'tc_heading--4', 'tc_heading--weight-700'])
 
 let titleProfile;
 let titlePoint = 0;
 const titlePointThrs = 4;
 
-let currentAnswer;
-let answerScore;
+let previousGuess = ["nah"];
+let currentGuess;
+let answer;
+
 let spans;
 let parentEl;
 let titleParent;
 let title;
 let titleScrambled;
 let titleFound = false;
-let gameActive = false;
 let node;
-
 
 function requestUrl(){
     chrome.runtime.onMessage.addListener((message) => {
@@ -50,37 +64,38 @@ function requestUrl(){
             findTitle();
         }
         }
-    })
+    });
 }
-
 
 function findTitle(){
     while (titleFound === false){
         if (!node){ return;}
         parentEl = node.parentElement;
         if(parentEl){
-            let style = window.getComputedStyle(parentEl);
-            if(style.fontFamily === titleProfile.fontFamily){titlePoint = titlePoint + 1;}
-            if(style.fontSize === titleProfile.fontSize){titlePoint = titlePoint + 1;}
-            if(style.fontWeight === titleProfile.fontWeight){titlePoint = titlePoint + 1;}
-            if(style.lineHeight === titleProfile.lineHeight){titlePoint = titlePoint + 1;}
-            console.log({
-            fontFamily: style.fontFamily,
-            fontSize: style.fontSize,
-            fontWeight: style.fontWeight,
-            lineHeight: style.lineHeight});
-            console.log(titlePoint);
-            node = walker.nextNode();
-            if(titlePoint >= titlePointThrs){
-                title = node;
-                console.log("TITLE FOUND!!" + title.textContent);
-                titleFound = true;
-                scrambleTitle();
+            console.log(parentEl.classList);
+            let hasClass = false
+            for (let name of titleProfile.className){
+                console.log(name);
+                if (parentEl.classList.contains(name)){
+                hasClass = true;
+                console.log("class found");
+                break;}
             }
-            else{
-            node = walker.nextNode();
-            titlePoint = 0;
+            if (!hasClass){
+                node = walker.nextNode();
+                continue;
             }
+            console.log(
+            className: parentEl.classList);
+            console.log(node.textContent);
+            title = node;
+            console.log("TITLE FOUND!!" + title.textContent);
+            answer = title.textContent.split("");
+            titleFound = true;
+            scrambleTitle();
+        }
+        else{
+            node = walker.nextNode();
         }
     }
 }
@@ -103,6 +118,7 @@ function charGiveStyle(){
 }
 
 function scrambleTitle(){
+    chrome.runtime.sendMessage({correctAnswer: title.textContent});
     charGiveStyle();
     if (spans.length < 1) {return "Error no title found";}
     if (spans.length > 1) {
@@ -113,9 +129,10 @@ function scrambleTitle(){
             console.log(i);
         }
         chrome.runtime.sendMessage({action: "startGame"});
-        gameActive = true;
     }
 }
+
+
 
 //this is the setup:
 requestUrl();
@@ -130,25 +147,26 @@ if(titleScrambled === "Error no title found"){
 }
 if(titleScrambled === "Error no title found"){chrome.runtime.sendMessage({error: "noTitle"});}
 
+
 //this is the game loop:
-while (gameActive){
 chrome.runtime.onMessage.addListener((request) => {
-    while (request.answer = true)
-    if(request.answer){
+    if((request.action === "userGuess") && (request.guess != previousGuess)){
         //Resolves when the answer given is not 100% correct
-        currentAnswer = request.answer.toLowerCase.split("");
+        console.log(request.guess);
+        currentGuess = request.guess.split("");
+        previousGuess = currentGuess.join("");
         answerScore = 0;
-        for(let i = 0; i <= spans.length; i++){
-            if (currentAnswer[i] === spans[i].textContent){
-                answerScore = answerScore + 1;
-                spans[i].textContent === currentAnswer[i];
+        for(let i = 0; i < spans.length; i++){
+            console.log(answer[i].textContent);
+            if (currentGuess[i] === answer[i].textContent){
+                answerScore++;
+                spans[i].textContent = currentGuess[i];
                 spans[i].style.color = "#7fff00";
             }
+            else{spans[i].style.color = "#Ff0000";}
         }
+        if(answerScore === spans.length){console.log("you win!!");}
+        else{console.log("Not correct");}
     }
-    else if(request.correct){
-        //Resolves when the answer given is 100% correct and the game is over
-        gameActive = false;
-    }
-  })
-}
+    setTimeout(1000);
+})
